@@ -1,65 +1,69 @@
+
 import User from "../models/user.js";
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 
 
-export function createUser(req,res){
 
-    const hashedPassword = bcrypt.hashSync(req.body.password,10);
+
+export function createUser(req, res) {
+
+    const hashedPassword = bcrypt.hashSync(req.body.password, 10);
     const user = new User(
         {
             email: req.body.email,
             firstName: req.body.firstName,
             lastName: req.body.lastName,
-            password:hashedPassword
+            password: hashedPassword
 
         }
     )
-    
+
     user.save().then(
-        ()=>{
+        () => {
             res.json(
                 {
-                message: "User Created Successfully"
+                    message: "User Created Successfully"
                 }
-        )
+            )
         }
     ).catch(
-        ()=>{
+        () => {
             res.json(
                 {
-                    message:"User Creation Failed"    
-                }           
-    )
-            })
+                    message: "User Creation Failed"
+                }
+            )
         }
+    )
+}
 
-export function loginUser(req,res){
+export function loginUser(req, res) {
     User.findOne(
         {
             email: req.body.email
         }
     ).then(
-        (user)=>{
-            if(user == null){
-                res.json(
+        (user) => {
+            if (user == null) {
+                res.status(404).json(
                     {
                         message: "User Not Found"
                     }
                 )
-            }else{
-                const isPasswordMatching = bcrypt.compareSync(req.body.password,user.password);
-                if(isPasswordMatching){
+            } else {
+                const isPasswordMatching = bcrypt.compareSync(req.body.password, user.password);
+                if (isPasswordMatching) {
 
-                    const token= jwt.sign(
+                    const token = jwt.sign(
                         {
-                            email:user.email,
-                            firstName:user.firstName,
-                            lastName:user.lastName,
-                            role:user.role,
-                            isEmailVerified:user.isEmailVerified,
+                            email: user.email,
+                            firstName: user.firstName,
+                            lastName: user.lastName,
+                            role: user.role,
+                            isEmailVerified: user.isEmailVerified,
                         },
-                        "jwt secret key"
+                        process.env.JWT_SECRET_KEY
                     )
 
 
@@ -67,11 +71,18 @@ export function loginUser(req,res){
                     res.json(
                         {
                             message: "User Logged In Successfully",
-                            token:token
+                            token: token,
+                            user: {
+                                email: user.email,
+                                firstName: user.firstName,
+                                lastName: user.lastName,
+                                role: user.role,
+                                isEmailVerified: user.isEmailVerified,
+                            }
                         }
                     )
-                }else{
-                    res.json(
+                } else {
+                    res.status(401).json(
                         {
                             message: "User Login Failed"
                         }
@@ -82,11 +93,11 @@ export function loginUser(req,res){
     )
 }
 
-export function isAdmin (req){
-    if(req.user==null){
+export function isAdmin(req) {
+    if (req.user == null) {
         return false;
     }
-    if(req.user.role !="admin"){
+    if (req.user.role != "admin") {
         return false;
     }
     return true

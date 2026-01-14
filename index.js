@@ -1,13 +1,24 @@
+import dotenv from "dotenv"
+dotenv.config()
+
 import express from "express";
+
 import mongoose from "mongoose";
 import userRouter from "./routes/userRouter.js";
 import jwt from "jsonwebtoken"
+import cors from "cors"
+
+
+
+
 import productRouter from "./routes/productRouter.js";
 
 //Express backend framework importer
 const app = express()
 //Connection String
-const dbConnection = "mongodb+srv://admin:232@cluster0.s0qftlq.mongodb.net/?appName=Cluster0"
+const dbConnection = process.env.MONGO_URI
+
+app.use(cors())
 
 //Database connecter
 mongoose.connect(dbConnection).then(
@@ -30,7 +41,7 @@ app.use(
         
         if(token !=null){
             token = token.replace("Bearer ","")
-            jwt.verify(token,"jwt secret key",
+            jwt.verify(token,process.env.JWT_SECRET_KEY,
                 (err,decoded)=>{
                     if(decoded==null){
                         res.json({
@@ -53,9 +64,9 @@ app.use(
 
 
 
-app.use("/users",userRouter)
+app.use("/api/users",userRouter)
 
-app.use("/product",productRouter)
+app.use("/api/product",productRouter)
 
 //backend starter
 app.listen(5000,()=>
