@@ -24,9 +24,12 @@ export async function createProduct(req,res){
         }
         );
     }
-    catch{
-        res.json({
-            message:"Product Creation Failed"
+    catch(error){
+        console.log(error)
+        res.status(500). json({
+            message:"Product Creation Failed",
+            error: error.message
+
         })
     }
 
@@ -35,6 +38,7 @@ export async function createProduct(req,res){
 
 
 export async function getProducts(req,res){
+    console.log("hello")
     
     try{
         const products = await Product.find()

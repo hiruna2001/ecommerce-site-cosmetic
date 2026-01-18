@@ -12,6 +12,7 @@ import cors from "cors"
 
 
 import productRouter from "./routes/productRouter.js";
+import orderRouter from "./routes/orderRouter.js";
 
 //Express backend framework importer
 const app = express()
@@ -67,6 +68,7 @@ app.use(
 app.use("/api/users",userRouter)
 
 app.use("/api/product",productRouter)
+app.use("/api/orders",orderRouter)
 
 //backend starter
 app.listen(5000,()=>
